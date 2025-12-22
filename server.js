@@ -16,7 +16,7 @@ app.use(morgan('dev'));
 app.use('/', express.static(path.resolve(__dirname, 'static')));
 
 const patrons = require('./routes/coins');
-app.use('/', patrons);
+app.use('/coins', patrons);
 
 const locations = require('./routes/locations');
 app.use('/locations', locations);
