@@ -20,6 +20,14 @@ router.get('/', async (req, res) => {
     return res.json(coinCollection)        
 });
 
+router.get('/pdf', async (req, res) => {
+    const [coinCollection] = await Promise.all([
+        lookupCoinCollection()
+    ])
+
+    return res.json(coinCollection)        
+});
+
 router.post('/add', async (req, res) => {
     try {
         console.log('add coin')

@@ -30,8 +30,8 @@ saveCoin = () => {
         },
         "mintage": 0,
         "GSID": 0,
-        "errors": [],
-        "notes": []
+        "errors": [$('#coinErrors').val()],
+        "notes": [$('#coinNotes').val()]
     }
     console.log(data)
     
@@ -135,7 +135,7 @@ populateAllCoinsTable = () => {
             $('#root').html(`
                 <h2>Found ${data.length} Items</h2>
                 <table width=100% class="table table-striped table-dark">
-                <thead><th>#</th><th>Tag</th><th>Year</th><th>Denomination</th><th>Mint</th><th>Has MM</th><th>Condition</th><th>Grade</th><th>Source</th><th>Metal</th><th>Created</th></thead>
+                <thead><th>#</th><th>Tag</th><th>Year</th><th>Denomination</th><th>Mint</th><th>Has MM</th><th>Condition</th><th>Grade</th><th>Source</th><th>Metal</th><th>Created</th><th>Errors</th><th>Notes</th></thead>
                 <tbody id=allCoinsBody>`);
             let count = 0;
             Object.keys(data).forEach((k, v) => {
@@ -156,6 +156,8 @@ populateAllCoinsTable = () => {
                     <td>${a.cameFrom}</td>
                     <td>${a.metal}</td>
                     <td>${d.date}</td>
+                    <td>${d.errors}</td>
+                    <td>${d.notes}</td>
                 </tr>`
                     );
                 }
@@ -191,6 +193,7 @@ clearCoinForm = () => {
     $('#coinGSID').val('')
     $('#coinErrors').val('')
     $('#coinNotes').val('')
+    setUpAddCoin();
 }
 
 getProductDetails = (upc) => {
