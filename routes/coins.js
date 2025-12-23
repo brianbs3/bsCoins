@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { formatJSON11 } = require('../utils/format');
-const {lookupCoinCollection} = require('../utils/coins')
+const {lookupCoinCollection, createCoin} = require('../utils/coins')
 const knex = require('../config/knex');
 const pjson = require('../package.json');
 // const config = require('../config')
@@ -12,19 +12,27 @@ router.get('/version', (req, res) => {
     return res.json(formatJSON11({ "version": pjson.version }));
 });
 
-router.get('/collection', async (req, res) => {
-    console.log('hello')
+router.get('/', async (req, res) => {
     const [coinCollection] = await Promise.all([
         lookupCoinCollection()
     ])
-    console.log(coinCollection);
+
     return res.json(coinCollection)        
-    // knex.select()
-    //     .from('coins')
-    //     .then(
-    //         m => {
-    //             return res.json(formatJSON11(m));
-    //         }
-    //     );
+});
+
+router.post('/add', async (req, res) => {
+    try {
+        console.log('add coin')
+        const { date, attributes, errors, notes} = req.body;
+        
+        const c = await createCoin({date, attributes, errors, notes})
+
+        return res.json({msg: "hello", c})
+    }
+    catch (error) {
+        console.log('there was an error')
+        console.log(error)
+        return res.json(error)
+    }
 });
 module.exports = router;
