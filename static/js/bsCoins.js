@@ -42,6 +42,7 @@ saveCoin = () => {
         url: `/coins/add`,
         success: function (d) {
             console.log(d)
+            setUpAddCoin()
         },
         error: function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.readyState == 0)
@@ -69,62 +70,32 @@ setUpAddCoin = () => {
         }
     });
 }
-lookupProduct = () => {
-    const upc = $('#lookupProductInput').val();
-    if(isStringInt(upc)){
-        if (upc.length !== 7 && upc.length !== 11 && upc.length !== 12 && upc.length !== 13 && upc.length !== 14){
-            $('#ccc_toast_body').html(`Invlid UPC length of ${upc.length}`)
-            $('#ccc_toast').show()
-            setTimeout(() => { $('#ccc_toast').hide() }, 3000)
-        }
-        else{
-            $('#ccc_toast_body').html(`Looking up ${upc}`)
-            $('#ccc_toast').show()
-            $.ajax({
-                    type: 'GET',
-                    url: `/products/lookup/${upc}`,
-                    success: function (data) {
-                        if(data && Object.keys(data).length > 0){
-                            
-                            $('#lookupProductDescription').val(data.description)
-                            $('#lookupProductBrand').val(data.brand)
-                            $('#lookupProductCategory').val(data.category)
-                            $('#lookupProductSize').val(data.size)
-                            $('#lookupProductSource').val(data.source)
 
-                            // if(item.images){
-                            //     let imgSrc = "";
-                            //     Object.keys(item.images).forEach((v) =>{
-                            //         console.log(item.images[v]);
-                            //         imgSrc += `<img width=200 height=200 src='${item.images[v]}'><br>`
-                            //     })
-                            //     $('#itemPics').html(imgSrc);
-                            // }
-                            
-                        }
-                        else{
-                            $('#lookupProductDescription').val("NOT FOUND")
-                            $('#lookupProductCategory').val("NOT FOUND")
-                            $('#lookupProductSize').val("NOT FOUND")
-                            $('#lookupProductBrand').val("NOT FOUND")
-                            $('#lookupProductSource').val("MANUAL")
-                        }
-                        $('#ccc_toast').hide()
-                        
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                    console.log("error")
-                    }
-                });
+coinDetails = (tag) => {
+    $.ajax({
+        type: 'GET',
+        url: `/coins/coin/${tag}`,
+        success: function (data) {
+            
+            const a = data[0].attributes;
+            
+            $('#coinTag').val(a.tag).focus();
+            $('#coinYear').val(a.year)
+            $('#coinDenomination').val(a.denomination)
+            $('#coinMint').val(a.mint)
+            $('#coinCondition').val(a.condition)
+            $('#coinGrade').val(a.grade)
+            $('#coinCameFrom').val(a.cameFrom)
+            $('#coinMetal').val(a.metal)
+            $('#coinMintage').val(a.mintage)
+            $('#coinGSID').val(a.GSID)
+            // $('#coinErrors').val('')
+            // $('#coinNotes').val('')
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log("error")
         }
-    }
-    else{
-        $('#ccc_toast_body').html(`${upc} is not a number`)
-        $('#ccc_toast').show()
-        setTimeout(() => { $('#ccc_toast').hide() }, 3000)
-    }
-    
-    
+    });
 }
 
 populateAllCoinsTable = () => {
@@ -146,7 +117,7 @@ populateAllCoinsTable = () => {
                     $('#allCoinsBody').append(
                         `<tr>
                     <td>${++count}</td>
-                    <td><a href=# data-toggle="modal" data-target="#addProductModal" onClick='productDetails("${a.tag}")'>${a.tag}</a></td>
+                    <td><a href=# data-toggle="modal" data-target="#addCoinModal" onClick='coinDetails("${a.tag}")'>${a.tag}</a></td>
                     <td>${a.year}</td>
                     <td>${a.denomination}</td>
                     <td>${a.mint}</td>
@@ -171,8 +142,7 @@ populateAllCoinsTable = () => {
         error: function (jqXHR, textStatus, errorThrown) {
             console.log("error")
         }
-    });
-    
+    });   
 }
 
 isStringInt = (str) => {
@@ -208,13 +178,6 @@ getProductDetails = (upc) => {
             console.log("error")
         }
     });
-
-}
-
-
-productDetails = (upc) => {
-    $('#lookupProductInput').val(upc);
-    lookupProduct();
 }
 
 truncateString = (str, maxLength=20) => {
@@ -227,20 +190,36 @@ truncateString = (str, maxLength=20) => {
     }
 }
 
-useThisImage = (imgURL, upc) => {
-    console.log(`we're going to use this image: ${imgURL}`)
-    $.ajax({
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({url: `${imgURL}`}),
-        url: `/products/download_image/${upc}`,
-        success: function (d) {
-            console.log(d)
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            if (jqXHR.readyState == 0)
-                window.location.replace(global_site_redirect);
-            $("#bsNetworkStatus").html(jqXHR);
-        }
-    });
+exportCoinCollection = () => {
+    try{
+        const d = new Date();
+        $.ajax({
+            type: 'GET',
+            url: `/coins/pdf`,
+            dataType: 'binary',
+            xhrFields: {
+                responseType: 'blob'
+            },
+            processData: true,
+            success: function (data) {
+                let blob = new Blob([data], { type: 'application/pdf' });
+                let link = document.createElement('a');
+                const filename = `bsCoins - ${d.toISOString()}.pdf`
+
+                link.href = window.URL.createObjectURL(blob);
+                link.setAttribute('download', filename);
+                link.setAttribute('filename', filename)
+                link.click();
+                window.open(link.href, '_blank');
+                
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log("error")
+            }
+        });
+    }
+    catch (error) {
+        console.log('there was an error exporting the collection')
+        console.log(error)
+    }
 }
