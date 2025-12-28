@@ -1,3 +1,5 @@
+let currentNotes = []
+let currentErrors = []
 $(document).ready(() => {
     $('#lookupProductInput').keypress(function (e) {
         var key = e.which;
@@ -11,11 +13,18 @@ $(document).ready(() => {
 saveCoin = () => {
     // alert('saving coin')
     const d = new Date();
+    console.log('currentNotes', currentNotes)
+    console.log('currentErrors', currentErrors)
+    if($.trim($('#currentErrors').val()) !== ''){
+        currentErrors.push($('#coinErrors').val())
+    }
         
-
+    if($.trim($('#currentNotes').val()) !== ''){
+        
+        currentNotes.push($('#coinNotes').val())
+    }
+        
     const data = {
-
-    
      "date": d.toISOString(),
         "attributes": {
             "year": $('#coinYear').val(),
@@ -30,8 +39,8 @@ saveCoin = () => {
         },
         "mintage": 0,
         "GSID": 0,
-        "errors": [$('#coinErrors').val()],
-        "notes": [$('#coinNotes').val()]
+        "errors": currentErrors,
+        "notes": currentNotes
     }
     console.log(data)
     
@@ -71,6 +80,9 @@ setUpAddCoin = () => {
     });
 }
 
+lookupCoin = () => {
+    coinDetails($('#coinTag').val());
+}
 coinDetails = (tag) => {
     $.ajax({
         type: 'GET',
@@ -89,8 +101,34 @@ coinDetails = (tag) => {
             $('#coinMetal').val(a.metal)
             $('#coinMintage').val(a.mintage)
             $('#coinGSID').val(a.GSID)
-            // $('#coinErrors').val('')
-            // $('#coinNotes').val('')
+            const e = currentErrors = data[0].errors
+            const n = currentNotes = data[0].notes
+            console.log('e', e.length)
+            console.log('n', n.length)
+            let eCount = nCount = 0
+            if(e.length > 1){
+                $('#coinErrorsTable').html(`<table width=100% class="table table-striped table-dark">
+                    <thead><th>#</th><th>Error</th></thead>
+                    <tbody id=coinErrorsBody></tbody>`)
+            }
+            if(n.length > 1){
+                $('#coinNotesTable').html(`<table width=100% class="table table-striped table-dark">
+                    <thead><th>#</th><th>Notes</th></thead>
+                    <tbody id=coinNotesBody></tbody>`)
+            }
+            
+            e.forEach((v) => {
+                if(v !== ""){
+                    $('#coinErrorsBody').append(`
+                    <tr><td>${++eCount}</td><td>${v}</td></tr>`)
+                }
+            })
+            n.forEach((v) => {
+                if(v !== ""){
+                    $('#coinNotesBody').append(`
+                    <tr><td>${++nCount}</td><td>${v}</td></tr>`)
+                }
+            })
         },
         error: function (jqXHR, textStatus, errorThrown) {
             console.log("error")
@@ -163,6 +201,10 @@ clearCoinForm = () => {
     $('#coinGSID').val('')
     $('#coinErrors').val('')
     $('#coinNotes').val('')
+    $('#coinErrorsTable').html('')
+    $('#coinNotesTable').html('')
+    currentErrors = [];
+    currentNotes = []
     setUpAddCoin();
 }
 

@@ -66,11 +66,15 @@ const createCoin = (coin) => {
             const collection = database.collection("collection");
             // product.title = product.description;
             // product.success = true;
-            const c = await collection.insertOne(coin, function (err, result) {
-                if (err) throw err;
-                console.log("1 document inserted");
-                client.close();
-            });
+             const c = await collection.updateOne({"attributes.tag": coin.attributes.tag},
+                { $set: coin },
+                { upsert: true }
+            )
+            // const c = await collection.insertOne(coin, function (err, result) {
+            //     if (err) throw err;
+            //     console.log("1 document inserted");
+            //     client.close();
+            // });
             // const p = await collection.updateOne({ upc: product.upc },
             //     { $set: product },
             //     { upsert: true }

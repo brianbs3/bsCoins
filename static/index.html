@@ -116,10 +116,12 @@
                                 <td>Errors</td>
                                 <td><input id=coinErrors placeholder="" class="form-control mr-sm-2" type=text name=errors></td>
                             </tr>
+                            <tr><td colspan="2"><div id=coinErrorsTable></div></td></tr>
                              <tr>
                                 <td>Notes</td>
                                 <td><input id=coinNotes placeholder="" class="form-control mr-sm-2" type=text name=notes></td>
                             </tr>
+                            <tr><td colspan="2"><div id=coinNotesTable></div></td></tr>
                         </table>
                         <div id="itemPics"></div>
                     </form>
@@ -127,7 +129,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-warning" onClick="clearCoinForm()">Clear</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onClick=lookupProduct()>Lookup</button>
+                    <button type="button" class="btn btn-primary" onClick=lookupCoin()>Lookup</button>
                     <button type="button" class="btn btn-success" onClick=saveCoin()>Save</button>
                 </div>
             </div>
